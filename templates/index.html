@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+    <title>Text Generation App</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1 class="sidebar-title">OldGPT</h1>
+            <ul class="sidebar-menu">
+                <li><button class="menu-item" onclick="createNewChat()">Create a new chat</button></li>
+                <li><button class="menu-item" onclick="goToGitHub()">GitHub</button></li>
+                <li><button class="menu-item" onclick="clearEverything()">Clear everything</button></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h1>Generate Text from Input</h1>
+            <div class="input-section">
+                <label for="input-text">Enter text to train the Markov chain</label>
+                <textarea id="input-text" class="input-field" placeholder="Type your text here..."></textarea>
+                <button class="generate-btn" onclick="generateText()">Generate Text</button>
+                <p id="generated-text" class="generated-text"></p>
+                <p id="error-message" class="error-message"></p>
+            </div>
+
+            <!-- Loading Animation -->
+            <div id="loader" class="loader" style="display: none;">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p><span class="at-symbol">@</span> Developed by Salowe</p>
+    </footer>
+
+    <script>
+        async function generateText() {
+            const inputText = document.getElementById('input-text').value;
+            const errorMessage = document.getElementById('error-message');
+            const generatedTextElement = document.getElementById('generated-text');
+            const loader = document.getElementById('loader');
+
+            errorMessage.textContent = ''; // Clear previous error messages
+            generatedTextElement.textContent = ''; // Clear previous generated text
+            loader.style.display = 'block'; // Show loading animation
+
+            if (!inputText.trim()) {
+                errorMessage.textContent = 'Please enter text before generating.';
+                loader.style.display = 'none'; // Hide loading animation
+                return;
+            }
+
+            try {
+                const response = await fetch('/generate_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                if (data.generated_text) {
+                    generatedTextElement.textContent = data.generated_text;
+                } else {
+                    throw new Error('Text generation failed');
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Failed to generate text: ' + error.message;
+            } finally {
+                loader.style.display = 'none'; // Hide loading animation after text is generated
+            }
+        }
+    </script>
+</body>
+</html>

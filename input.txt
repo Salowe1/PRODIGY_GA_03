@@ -1,0 +1,3 @@
+Markov chains are a mathematical system that undergo transitions from one state to another.
+They are used in various applications, including text generation and machine learning.
+This is an example of how Markov chains can produce interesting results.
